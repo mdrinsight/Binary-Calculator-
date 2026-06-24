@@ -3,221 +3,324 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Binary Logic Engine</title>
+    <title>8-Bit Logic Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg-dark: #09090b;
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --glass-bg: rgba(255, 255, 255, 0.03);
+            --bg-dark: #030303;
+            --glass-border: rgba(255, 255, 255, 0.04);
+            --glass-bg: rgba(255, 255, 255, 0.02);
         }
 
+        /* Strict Mobile Viewport & Gesture Blocking */
         body {
             background-color: var(--bg-dark);
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(255, 255, 255, 0.03), transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.04), transparent 25%);
             font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-            overscroll-behavior-y: none;
+            touch-action: none; /* Blocks all native pinching/panning */
+            overscroll-behavior: contain; /* Blocks pull-to-refresh */
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .font-mono {
             font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
         }
 
+        /* Invisible Scrollbar for Overflow */
         ::-webkit-scrollbar { width: 0px; height: 0px; }
         
-        .glass-container {
+        /* Ambient Glow Meshes */
+        .ambient-mesh-top {
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, transparent 70%);
+            filter: blur(60px);
+        }
+        .ambient-mesh-br {
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+            filter: blur(60px);
+        }
+        .ambient-mesh-bl {
+            background: radial-gradient(circle, rgba(225, 29, 72, 0.08) 0%, transparent 70%);
+            filter: blur(60px);
+        }
+
+        /* Premium Glassmorphism */
+        .glass-card {
             background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             border: 1px solid var(--glass-border);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.9), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                        inset 0 -1px 0 rgba(0, 0, 0, 0.5);
         }
 
         .display-screen {
-            background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 100%);
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 100%);
+            box-shadow: inset 0 4px 20px rgba(0,0,0,0.9), 0 1px 0 rgba(255,255,255,0.03);
+            border: 1px solid rgba(255, 255, 255, 0.02);
         }
 
+        /* Hardware Accelerated Micro-Interactions */
         .btn {
-            will-change: transform;
+            will-change: transform, background-color;
             transform: translateZ(0);
             backface-visibility: hidden;
-            transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.15s ease;
+            transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.15s ease, box-shadow 0.15s ease;
         }
 
         .btn:active {
-            transform: scale(0.92) translateZ(0);
+            transform: scale(0.94) translateZ(0);
         }
 
+        /* Button Theming */
         .btn-num {
-            background: rgba(255, 255, 255, 0.04);
+            background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 4px 10px rgba(0,0,0,0.3);
         }
-        .btn-num:active { background: rgba(255, 255, 255, 0.1); }
+        .btn-num:active { background: rgba(255, 255, 255, 0.08); }
 
         .btn-op {
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid rgba(59, 130, 246, 0.2);
+            background: linear-gradient(180deg, rgba(59,130,246,0.12) 0%, rgba(59,130,246,0.03) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.15);
             color: #60a5fa;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 4px 10px rgba(0,0,0,0.3);
         }
         .btn-op:active { background: rgba(59, 130, 246, 0.2); }
 
         .btn-action {
-            background: rgba(244, 63, 94, 0.1);
-            border: 1px solid rgba(244, 63, 94, 0.2);
+            background: linear-gradient(180deg, rgba(244,63,94,0.12) 0%, rgba(244,63,94,0.03) 100%);
+            border: 1px solid rgba(244, 63, 94, 0.15);
             color: #fb7185;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 4px 10px rgba(0,0,0,0.3);
         }
         .btn-action:active { background: rgba(244, 63, 94, 0.2); }
 
         .btn-equals {
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.3);
+            background: linear-gradient(180deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.25);
             color: #34d399;
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 20px rgba(16, 185, 129, 0.1);
         }
         .btn-equals:active {
-            background: rgba(16, 185, 129, 0.3);
-            box-shadow: 0 0 25px rgba(16, 185, 129, 0.3);
+            background: rgba(16, 185, 129, 0.25);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 0 30px rgba(16, 185, 129, 0.2);
         }
+
+        /* Boot Sequence Animations */
+        @keyframes load-progress {
+            0% { width: 0%; }
+            30% { width: 45%; }
+            70% { width: 80%; }
+            100% { width: 100%; }
+        }
+        .animate-progress {
+            animation: load-progress 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        .blink { animation: blinker 1s step-end infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
     </style>
 </head>
-<body class="h-[100dvh] w-screen overflow-hidden flex items-center justify-center text-white selection:bg-blue-500/30 p-4">
+<body class="h-[100dvh] w-screen overflow-hidden flex items-center justify-center text-white relative">
 
-    <!-- Main Wrapper: Shrunk to 320px and height set to auto to form a centered card -->
-    <div class="w-full max-w-[320px] flex flex-col gap-3">
+    <!-- Ambient Background Meshes -->
+    <div class="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[80vw] h-[40vh] ambient-mesh-top pointer-events-none z-0"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[40vh] ambient-mesh-br pointer-events-none z-0"></div>
+    <div class="absolute bottom-[-10%] left-[-10%] w-[60vw] h-[40vh] ambient-mesh-bl pointer-events-none z-0"></div>
+
+    <!-- ==========================================
+         BOOT SEQUENCE (CS/IT ENGINEERING THEME)
+         ========================================== -->
+    <div id="boot-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#030303] transition-opacity duration-700 px-6">
+        <div class="w-full max-w-[320px] font-mono text-[11px] tracking-wider text-blue-400/80 space-y-3">
+            <div id="term-1" class="opacity-0 transition-opacity duration-150">[SYS] INITIALIZING CORE_LOGIC_ENGINE v2.0...</div>
+            <div id="term-2" class="opacity-0 transition-opacity duration-150">[OK] MAP_8BIT_REGISTERS</div>
+            <div id="term-3" class="opacity-0 transition-opacity duration-150">[OK] ALLOCATING LOGIC_GATE_ARRAYS...</div>
+            <div id="term-4" class="opacity-0 transition-opacity duration-150 text-emerald-400">[SYS] READY<span class="blink">_</span></div>
+            
+            <!-- Cybernetic Progress Line -->
+            <div class="w-full h-[1px] bg-white/5 mt-6 relative overflow-hidden">
+                <div class="absolute top-0 left-0 h-full bg-blue-500 animate-progress shadow-[0_0_8px_rgba(37,99,235,0.8)]"></div>
+            </div>
+
+            <div class="pt-4 text-white/30 text-[9px] tracking-[0.2em] text-center font-sans">
+                ENGINEERED BY DEPT. OF CS & IT // CLASS OF '28 [YEAR II]
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MAIN CALCULATOR INTERFACE
+         ========================================== -->
+    <div id="app-container" class="relative z-10 w-full max-w-[360px] flex flex-col gap-5 p-4 opacity-0 scale-95 transition-all duration-1000 ease-out">
         
         <!-- Header -->
-        <div class="text-center px-1 flex justify-between items-end">
+        <div class="text-center px-2 flex justify-between items-end">
             <div class="text-left">
-                <h1 class="text-base font-bold tracking-wider text-white/90 flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
+                <h1 class="text-base font-bold tracking-widest text-white/90 flex items-center gap-2 font-mono">
+                    <div class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(37,99,235,0.8)]"></div>
                     BIN<span class="text-blue-500">CALC</span>
                 </h1>
-                <p class="text-[8px] text-white/40 font-mono mt-0.5 tracking-widest">8-BIT LOGIC ENGINE</p>
+                <p class="text-[9px] text-white/40 font-mono mt-1 tracking-[0.15em]">8-BIT LOGIC ENGINE</p>
             </div>
-            <div class="text-[8px] font-mono text-white/30 border border-white/10 px-2 py-1 rounded-md bg-white/5">
+            <div class="text-[9px] font-mono text-emerald-400/80 border border-emerald-400/20 px-2 py-1 rounded bg-emerald-400/5 tracking-wider shadow-[0_0_10px_rgba(16,185,129,0.05)]">
                 STRICT MODE
             </div>
         </div>
 
-        <!-- Calculator Interface -->
-        <div class="glass-container rounded-[2rem] p-4 flex flex-col gap-3">
+        <!-- Calculator Body -->
+        <div class="glass-card rounded-[2rem] p-4 sm:p-5 flex flex-col gap-5">
             
-            <!-- Display Area: Fixed height (h-28) -->
-            <div class="display-screen w-full h-28 rounded-2xl p-3 flex flex-col relative overflow-hidden">
+            <!-- Display Area -->
+            <div class="display-screen w-full h-32 rounded-2xl p-4 flex flex-col relative overflow-hidden">
                 <!-- History Log -->
-                <div id="history" class="flex-1 overflow-y-auto text-right text-[10px] text-white/40 font-mono space-y-1 pb-1 flex flex-col justify-end scroll-smooth">
-                    <!-- History items injected via JS -->
+                <div id="history" class="flex-1 overflow-y-auto text-right text-[11px] text-white/30 font-mono space-y-1 pb-1 flex flex-col justify-end scroll-smooth">
+                    <!-- History injected via JS -->
                 </div>
+                
                 <!-- Current Input -->
                 <div id="display" class="w-full overflow-x-auto text-right text-4xl font-mono tracking-tight text-white whitespace-nowrap pb-1 scroll-smooth mt-1">
                     0
                 </div>
+
+                <!-- Real-Time Decimal Indicator -->
+                <div class="absolute bottom-3 left-4 text-[10px] font-mono text-blue-400/70 tracking-wider flex items-center gap-1.5">
+                    <span class="w-1 h-1 bg-blue-400/70 rounded-full"></span>
+                    <span id="dec-indicator">[DEC: 0]</span>
+                </div>
             </div>
 
-            <!-- Keypad Grid: Fixed button heights (h-14) -->
-            <div class="grid grid-cols-4 gap-2">
+            <!-- Keypad Grid (Ergonomic Thumb Grid) -->
+            <div class="grid grid-cols-4 gap-3">
                 
                 <!-- Row 1: Actions -->
-                <button class="btn btn-action col-span-2 rounded-2xl text-lg font-semibold flex items-center justify-center h-14 w-full" onclick="handleInput('C')">C</button>
-                <button class="btn btn-action col-span-2 rounded-2xl text-lg font-semibold flex items-center justify-center h-14 w-full" onclick="handleInput('⌫')">⌫</button>
+                <button class="btn btn-action col-span-2 rounded-2xl text-lg font-semibold flex items-center justify-center h-16 w-full font-sans" onclick="handleInput('C')">C</button>
+                <button class="btn btn-action col-span-2 rounded-2xl text-xl font-semibold flex items-center justify-center h-16 w-full font-sans" onclick="handleInput('⌫')">⌫</button>
                 
                 <!-- Row 2: Numbers -->
-                <button class="btn btn-num col-span-2 rounded-2xl text-3xl font-mono text-white flex items-center justify-center h-14 w-full" onclick="handleInput('1')">1</button>
-                <button class="btn btn-num col-span-2 rounded-2xl text-3xl font-mono text-white flex items-center justify-center h-14 w-full" onclick="handleInput('0')">0</button>
+                <button class="btn btn-num col-span-2 rounded-2xl text-3xl font-mono text-white flex items-center justify-center h-16 w-full" onclick="handleInput('1')">1</button>
+                <button class="btn btn-num col-span-2 rounded-2xl text-3xl font-mono text-white flex items-center justify-center h-16 w-full" onclick="handleInput('0')">0</button>
                 
                 <!-- Row 3: Operators -->
-                <button class="btn btn-op col-span-2 rounded-2xl text-3xl font-mono flex items-center justify-center pb-1 h-14 w-full" onclick="handleInput('+')">+</button>
-                <button class="btn btn-op col-span-2 rounded-2xl text-3xl font-mono flex items-center justify-center pb-1 h-14 w-full" onclick="handleInput('-')">-</button>
+                <button class="btn btn-op col-span-2 rounded-2xl text-3xl font-mono flex items-center justify-center pb-1 h-16 w-full" onclick="handleInput('+')">+</button>
+                <button class="btn btn-op col-span-2 rounded-2xl text-3xl font-mono flex items-center justify-center pb-1 h-16 w-full" onclick="handleInput('-')">-</button>
                 
                 <!-- Row 4: Equals -->
-                <button class="btn btn-equals col-span-4 rounded-2xl text-3xl font-mono flex items-center justify-center pb-1 h-14 w-full" onclick="handleInput('=')">=</button>
+                <button class="btn btn-equals col-span-4 rounded-2xl text-3xl font-mono flex items-center justify-center pb-1 h-16 w-full" onclick="handleInput('=')">=</button>
                 
             </div>
         </div>
     </div>
 
     <script>
-        // State Management
+        // ==========================================
+        // BOOT SEQUENCE LOGIC (Strict 2.5s)
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            const bootScreen = document.getElementById('boot-screen');
+            const appContainer = document.getElementById('app-container');
+            
+            setTimeout(() => document.getElementById('term-1').classList.remove('opacity-0'), 200);
+            setTimeout(() => document.getElementById('term-2').classList.remove('opacity-0'), 800);
+            setTimeout(() => document.getElementById('term-3').classList.remove('opacity-0'), 1400);
+            setTimeout(() => document.getElementById('term-4').classList.remove('opacity-0'), 2000);
+            
+            setTimeout(() => {
+                bootScreen.classList.add('opacity-0', 'pointer-events-none');
+                appContainer.classList.remove('opacity-0', 'scale-95');
+            }, 2500);
+        });
+
+        // ==========================================
+        // CALCULATOR STATE & LOGIC ENGINE
+        // ==========================================
         let currentExpression = "";
         let historyLog = [];
         let justCalculated = false;
 
-        // DOM Elements
         const displayEl = document.getElementById('display');
         const historyEl = document.getElementById('history');
+        const decIndicatorEl = document.getElementById('dec-indicator');
 
-        // Haptic Feedback Engine
-        function triggerHaptic(type = 'light') {
+        // Web Haptics Engine (Tactile Vibe)
+        function triggerHaptic(type) {
             if (!navigator.vibrate) return;
-            if (type === 'light') navigator.vibrate(10);
-            if (type === 'medium') navigator.vibrate(20);
-            if (type === 'heavy') navigator.vibrate([15, 30, 15]);
+            try {
+                if (type === 'bit') navigator.vibrate(12);
+                if (type === 'op') navigator.vibrate(25);
+                if (type === 'calc') navigator.vibrate([20, 30, 20]);
+                if (type === 'err') navigator.vibrate([50, 50, 50]);
+            } catch (e) {} // Fallback for unsupported browsers
         }
 
-        function calculateBinary(expression) {
-            if (!expression) return "";
+        /**
+         * Evaluates the binary expression to a decimal integer.
+         * Strictly enforces 8-bit Two's Complement boundaries (-128 to 127).
+         */
+        function evaluateToDecimal(expression) {
+            if (!expression || expression === "[OVERFLOW_ERR]") return null;
 
-            let tokens = [];
-            let currentNum = "";
-            
-            for (let i = 0; i < expression.length; i++) {
-                const char = expression[i];
-                if (char === '+' || char === '-') {
-                    if (i === 0 && char === '-') {
-                        currentNum += char;
-                    } else {
-                        if (currentNum !== "") {
-                            tokens.push(currentNum);
-                            currentNum = "";
-                        }
-                        tokens.push(char);
-                    }
-                } else {
-                    currentNum += char;
-                }
-            }
-            if (currentNum !== "") tokens.push(currentNum);
-            if (tokens.length === 0) return "";
+            // Tokenize expression safely
+            let tokens = expression.match(/(\d+|[+-])/g);
+            if (!tokens) return null;
 
-            if (tokens[tokens.length - 1] === '+' || tokens[tokens.length - 1] === '-') {
-                tokens.pop();
+            // Handle leading negative sign
+            if (tokens[0] === '-') {
+                tokens.shift();
+                if (tokens.length > 0) tokens[0] = '-' + tokens[0];
+            } else if (tokens[0] === '+') {
+                tokens.shift();
             }
+
+            if (tokens.length === 0) return null;
 
             let result = parseInt(tokens[0], 2);
-            if (isNaN(result)) return "";
+            if (isNaN(result)) return null;
 
             for (let i = 1; i < tokens.length; i += 2) {
                 const operator = tokens[i];
                 const nextNum = parseInt(tokens[i + 1], 2);
                 
-                if (isNaN(nextNum)) break;
+                if (isNaN(nextNum)) break; // Ignore trailing operators for real-time display
 
-                if (operator === '+') {
-                    result += nextNum;
-                } else if (operator === '-') {
-                    result -= nextNum;
+                if (operator === '+') result += nextNum;
+                if (operator === '-') result -= nextNum;
+            }
+
+            return result;
+        }
+
+        // UI Updates
+        function updateDisplay() {
+            displayEl.innerText = currentExpression || "0";
+            
+            // Update Decimal Indicator & Handle Overflow Visuals
+            if (currentExpression === "[OVERFLOW_ERR]") {
+                decIndicatorEl.innerHTML = `<span class="text-rose-400">[ERR: LIMIT_EXCEEDED]</span>`;
+                displayEl.classList.add('text-rose-400');
+                displayEl.classList.remove('text-white');
+            } else {
+                displayEl.classList.remove('text-rose-400');
+                displayEl.classList.add('text-white');
+                
+                const decValue = evaluateToDecimal(currentExpression);
+                if (decValue !== null) {
+                    if (decValue < -128 || decValue > 127) {
+                        decIndicatorEl.innerHTML = `<span class="text-rose-400">[DEC: OVERFLOW]</span>`;
+                    } else {
+                        decIndicatorEl.innerText = `[DEC: ${decValue}]`;
+                    }
+                } else {
+                    decIndicatorEl.innerText = `[DEC: 0]`;
                 }
             }
 
-            if (result < 0) {
-                return "-" + Math.abs(result).toString(2);
-            }
-            return result.toString(2);
-        }
-
-        function updateDisplay() {
-            displayEl.innerText = currentExpression || "0";
+            // Hardware-accelerated scroll to keep latest input visible
             requestAnimationFrame(() => {
                 displayEl.scrollLeft = displayEl.scrollWidth;
             });
@@ -225,24 +328,33 @@
 
         function updateHistoryUI() {
             historyEl.innerHTML = historyLog.map(item => 
-                `<div class="opacity-70 hover:opacity-100 transition-opacity duration-200">${item}</div>`
+                `<div class="opacity-50 hover:opacity-100 transition-opacity duration-200">${item}</div>`
             ).join('');
             requestAnimationFrame(() => {
                 historyEl.scrollTop = historyEl.scrollHeight;
             });
         }
 
+        // Input Handler
         function handleInput(key) {
             const operators = ['+', '-'];
+            
+            // Reset on OVERFLOW
+            if (currentExpression === "[OVERFLOW_ERR]") {
+                currentExpression = "";
+                justCalculated = false;
+                if (key === '=' || key === '⌫') return;
+            }
+
             const lastChar = currentExpression.slice(-1);
 
             if (key === 'C') {
-                triggerHaptic('heavy');
+                triggerHaptic('calc');
                 currentExpression = "";
                 justCalculated = false;
             } 
             else if (key === '⌫') {
-                triggerHaptic('medium');
+                triggerHaptic('op');
                 if (justCalculated) {
                     currentExpression = "";
                     justCalculated = false;
@@ -252,23 +364,42 @@
                 }
             } 
             else if (key === '=') {
-                triggerHaptic('heavy');
                 if (!currentExpression || operators.includes(lastChar)) return;
 
-                const result = calculateBinary(currentExpression);
-                if (result === "" || result === "NaN") return;
+                const decResult = evaluateToDecimal(currentExpression);
+                if (decResult === null) return;
+
+                let finalBinary = "";
                 
-                historyLog.push(`${currentExpression} = <span class="text-white/80">${result}</span>`);
+                // Strict 8-bit boundary check (-128 to 127)
+                if (decResult < -128 || decResult > 127) {
+                    triggerHaptic('err');
+                    finalBinary = "[OVERFLOW_ERR]";
+                } else {
+                    triggerHaptic('calc');
+                    finalBinary = decResult < 0 
+                        ? "-" + Math.abs(decResult).toString(2) 
+                        : decResult.toString(2);
+                }
+                
+                historyLog.push(`${currentExpression} = <span class="text-white/90">${finalBinary}</span>`);
                 if (historyLog.length > 4) historyLog.shift(); 
                 
                 updateHistoryUI();
-                currentExpression = result;
+                currentExpression = finalBinary;
                 justCalculated = true;
             } 
             else if (operators.includes(key)) {
-                triggerHaptic('medium');
+                triggerHaptic('op');
                 justCalculated = false;
-                if (currentExpression === "") return;
+                
+                // Allow negative numbers at start
+                if (currentExpression === "" && key === '-') {
+                    currentExpression = "-";
+                    updateDisplay();
+                    return;
+                }
+                if (currentExpression === "" || currentExpression === "-") return;
                 
                 if (operators.includes(lastChar)) {
                     currentExpression = currentExpression.slice(0, -1) + key;
@@ -277,14 +408,21 @@
                 }
             } 
             else if (key === '1' || key === '0') {
-                triggerHaptic('light');
                 if (justCalculated) {
                     currentExpression = key;
                     justCalculated = false;
+                    triggerHaptic('bit');
                 } else {
                     const segments = currentExpression.split(/[+-]/);
                     const currentSegment = segments[segments.length - 1];
                     
+                    // Enforce 8-bit length per operand visually
+                    if (currentSegment.length >= 8) {
+                        triggerHaptic('err');
+                        return; // Block input
+                    }
+
+                    triggerHaptic('bit');
                     if (currentSegment === "0" && key === "0") {
                         return; 
                     } else if (currentSegment === "0" && key === "1") {
@@ -298,6 +436,7 @@
             updateDisplay();
         }
 
+        // Keyboard Support for Desktop Testing
         document.addEventListener('keydown', (e) => {
             const key = e.key;
             if (['0', '1', '+', '-'].includes(key)) {
