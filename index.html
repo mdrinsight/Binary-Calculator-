@@ -23,18 +23,16 @@
                 radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.04), transparent 25%);
             font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation; /* Prevents double-tap zoom */
-            overscroll-behavior-y: none; /* Prevents pull-to-refresh */
+            touch-action: manipulation;
+            overscroll-behavior-y: none;
         }
 
         .font-mono {
             font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
         }
 
-        /* Invisible but functional scrollbar for mobile */
         ::-webkit-scrollbar { width: 0px; height: 0px; }
         
-        /* Glassmorphism Utilities */
         .glass-container {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
@@ -49,7 +47,6 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* Hardware Accelerated Buttons */
         .btn {
             will-change: transform;
             transform: translateZ(0);
@@ -94,58 +91,57 @@
         }
     </style>
 </head>
-<!-- h-[100dvh] ensures it fits perfectly inside mobile browsers without address bar clipping -->
-<body class="h-[100dvh] w-screen overflow-hidden flex items-center justify-center text-white selection:bg-blue-500/30 p-3 sm:p-4">
+<body class="h-[100dvh] w-screen overflow-hidden flex items-center justify-center text-white selection:bg-blue-500/30 p-4">
 
-    <!-- Main Wrapper: Constrained to Pixel 5 width (393px) -->
-    <div class="w-full max-w-[393px] h-full flex flex-col gap-3">
+    <!-- Main Wrapper: Shrunk to 320px and height set to auto to form a centered card -->
+    <div class="w-full max-w-[320px] flex flex-col gap-3">
         
         <!-- Header -->
-        <div class="flex-none text-center px-1 flex justify-between items-end pt-2">
+        <div class="text-center px-1 flex justify-between items-end">
             <div class="text-left">
-                <h1 class="text-lg font-bold tracking-wider text-white/90 flex items-center gap-2">
+                <h1 class="text-base font-bold tracking-wider text-white/90 flex items-center gap-2">
                     <div class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
                     BIN<span class="text-blue-500">CALC</span>
                 </h1>
-                <p class="text-[9px] text-white/40 font-mono mt-0.5 tracking-widest">8-BIT LOGIC ENGINE</p>
+                <p class="text-[8px] text-white/40 font-mono mt-0.5 tracking-widest">8-BIT LOGIC ENGINE</p>
             </div>
-            <div class="text-[9px] font-mono text-white/30 border border-white/10 px-2 py-1 rounded-md bg-white/5">
+            <div class="text-[8px] font-mono text-white/30 border border-white/10 px-2 py-1 rounded-md bg-white/5">
                 STRICT MODE
             </div>
         </div>
 
         <!-- Calculator Interface -->
-        <div class="glass-container rounded-[2rem] p-3 sm:p-4 flex flex-col gap-3 flex-1 min-h-0">
+        <div class="glass-container rounded-[2rem] p-4 flex flex-col gap-3">
             
-            <!-- Display Area (Takes ~35% of the glass container) -->
-            <div class="display-screen flex-[0.35] w-full rounded-2xl p-4 flex flex-col relative overflow-hidden min-h-[120px]">
+            <!-- Display Area: Fixed height (h-28) -->
+            <div class="display-screen w-full h-28 rounded-2xl p-3 flex flex-col relative overflow-hidden">
                 <!-- History Log -->
-                <div id="history" class="flex-1 overflow-y-auto text-right text-[11px] text-white/40 font-mono space-y-1.5 pb-1 flex flex-col justify-end scroll-smooth">
+                <div id="history" class="flex-1 overflow-y-auto text-right text-[10px] text-white/40 font-mono space-y-1 pb-1 flex flex-col justify-end scroll-smooth">
                     <!-- History items injected via JS -->
                 </div>
                 <!-- Current Input -->
-                <div id="display" class="w-full overflow-x-auto text-right text-4xl sm:text-5xl font-mono tracking-tight text-white whitespace-nowrap pb-1 scroll-smooth mt-1">
+                <div id="display" class="w-full overflow-x-auto text-right text-4xl font-mono tracking-tight text-white whitespace-nowrap pb-1 scroll-smooth mt-1">
                     0
                 </div>
             </div>
 
-            <!-- Keypad Grid (Takes ~65% of the glass container, stretches buttons to fit) -->
-            <div class="flex-[0.65] grid grid-cols-4 grid-rows-4 gap-2 sm:gap-3 min-h-0">
+            <!-- Keypad Grid: Fixed button heights (h-14) -->
+            <div class="grid grid-cols-4 gap-2">
                 
                 <!-- Row 1: Actions -->
-                <button class="btn btn-action col-span-2 rounded-2xl text-xl font-semibold flex items-center justify-center h-full w-full" onclick="handleInput('C')">C</button>
-                <button class="btn btn-action col-span-2 rounded-2xl text-xl font-semibold flex items-center justify-center h-full w-full" onclick="handleInput('⌫')">⌫</button>
+                <button class="btn btn-action col-span-2 rounded-2xl text-lg font-semibold flex items-center justify-center h-14 w-full" onclick="handleInput('C')">C</button>
+                <button class="btn btn-action col-span-2 rounded-2xl text-lg font-semibold flex items-center justify-center h-14 w-full" onclick="handleInput('⌫')">⌫</button>
                 
                 <!-- Row 2: Numbers -->
-                <button class="btn btn-num col-span-2 rounded-2xl text-3xl sm:text-4xl font-mono text-white flex items-center justify-center h-full w-full" onclick="handleInput('1')">1</button>
-                <button class="btn btn-num col-span-2 rounded-2xl text-3xl sm:text-4xl font-mono text-white flex items-center justify-center h-full w-full" onclick="handleInput('0')">0</button>
+                <button class="btn btn-num col-span-2 rounded-2xl text-3xl font-mono text-white flex items-center justify-center h-14 w-full" onclick="handleInput('1')">1</button>
+                <button class="btn btn-num col-span-2 rounded-2xl text-3xl font-mono text-white flex items-center justify-center h-14 w-full" onclick="handleInput('0')">0</button>
                 
                 <!-- Row 3: Operators -->
-                <button class="btn btn-op col-span-2 rounded-2xl text-3xl sm:text-4xl font-mono flex items-center justify-center pb-1 h-full w-full" onclick="handleInput('+')">+</button>
-                <button class="btn btn-op col-span-2 rounded-2xl text-3xl sm:text-4xl font-mono flex items-center justify-center pb-1 h-full w-full" onclick="handleInput('-')">-</button>
+                <button class="btn btn-op col-span-2 rounded-2xl text-3xl font-mono flex items-center justify-center pb-1 h-14 w-full" onclick="handleInput('+')">+</button>
+                <button class="btn btn-op col-span-2 rounded-2xl text-3xl font-mono flex items-center justify-center pb-1 h-14 w-full" onclick="handleInput('-')">-</button>
                 
                 <!-- Row 4: Equals -->
-                <button class="btn btn-equals col-span-4 rounded-2xl text-3xl sm:text-4xl font-mono flex items-center justify-center pb-1 h-full w-full" onclick="handleInput('=')">=</button>
+                <button class="btn btn-equals col-span-4 rounded-2xl text-3xl font-mono flex items-center justify-center pb-1 h-14 w-full" onclick="handleInput('=')">=</button>
                 
             </div>
         </div>
@@ -161,19 +157,14 @@
         const displayEl = document.getElementById('display');
         const historyEl = document.getElementById('history');
 
-        // Haptic Feedback Engine (Mobile Premium Feel)
+        // Haptic Feedback Engine
         function triggerHaptic(type = 'light') {
             if (!navigator.vibrate) return;
-            if (type === 'light') navigator.vibrate(10); // Short tap for numbers
-            if (type === 'medium') navigator.vibrate(20); // Medium tap for operators
-            if (type === 'heavy') navigator.vibrate([15, 30, 15]); // Double tap for equals/clear
+            if (type === 'light') navigator.vibrate(10);
+            if (type === 'medium') navigator.vibrate(20);
+            if (type === 'heavy') navigator.vibrate([15, 30, 15]);
         }
 
-        /**
-         * Core Binary Logic Engine
-         * Converts binary strings to integers, calculates, and returns binary string.
-         * Strictly avoids eval() and handles carry/borrow logic natively via base-2 parsing.
-         */
         function calculateBinary(expression) {
             if (!expression) return "";
 
@@ -225,7 +216,6 @@
             return result.toString(2);
         }
 
-        // UI Updates
         function updateDisplay() {
             displayEl.innerText = currentExpression || "0";
             requestAnimationFrame(() => {
@@ -242,7 +232,6 @@
             });
         }
 
-        // Input Handler
         function handleInput(key) {
             const operators = ['+', '-'];
             const lastChar = currentExpression.slice(-1);
@@ -270,7 +259,7 @@
                 if (result === "" || result === "NaN") return;
                 
                 historyLog.push(`${currentExpression} = <span class="text-white/80">${result}</span>`);
-                if (historyLog.length > 6) historyLog.shift(); // Keep log clean for small screens
+                if (historyLog.length > 4) historyLog.shift(); 
                 
                 updateHistoryUI();
                 currentExpression = result;
@@ -309,7 +298,6 @@
             updateDisplay();
         }
 
-        // Keyboard Support
         document.addEventListener('keydown', (e) => {
             const key = e.key;
             if (['0', '1', '+', '-'].includes(key)) {
